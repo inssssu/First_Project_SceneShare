@@ -1,0 +1,35 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: SceneShare
+
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
+  datasource:
+    hikari:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:3306/First_Project_SceneShare_db?characterEncoding=UTF-8&serverTimezone=UTC
+      username: First_Project_SceneShare
+      password: full502
+      connection-test-query: SELECT 1
+
+  sql:
+    init:
+      mode: always
+
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    generate-ddl: true
+    defer-datasource-initialization: true
+    show-sql: true
+    hibernate:
+      ddl-auto: create #update (run ? data.sql ?? 1?? ?? ?? ??)
+    properties:
+      hibernate:
+        format_sql: true
