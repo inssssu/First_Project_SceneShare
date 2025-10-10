@@ -110,7 +110,7 @@
                 <div class="movie-img">
                   <a href="#" th:href="@{|/movieDetail/${item.movieId}|}">
                     <figure th:with="posterUrl=${#strings.isEmpty(item.moviePosterUrl) ? '/img/no-image.svg' : item.moviePosterUrl}">
-                      <img src="/img/no-image.svg" th:src="@{${posterUrl}}" alt="영화 포스터">
+                      <img src="/img/no-image.svg" th:src="@{${posterUrl}}" alt="">
                     </figure>
                   </a>
                   <button type="button" class="bookmark">
@@ -148,7 +148,7 @@
               <a href="#">
                 <figure>
                   <!-- ✅ 수정: 상대경로 -> 정적 리소스 경로로 안전화 -->
-                  <img th:src="@{/img/test6-img.jpg}" alt="영화포스터">
+                  <img th:src="@{/img/test6-img.jpg}" alt="">
                 </figure>
               </a>
               <button type="button" class="bookmark">
@@ -167,7 +167,7 @@
               <a href="#">
                 <figure>
                   <!-- ✅ 수정: 상대경로 -> 정적 리소스 경로로 안전화 -->
-                  <img th:src="@{/img/test7-img.jpg}" alt="영화포스터">
+                  <img th:src="@{/img/test7-img.jpg}" alt="">
                 </figure>
               </a>
               <button type="button" class="bookmark">
@@ -212,7 +212,7 @@
               <div class="center">
                 <figure class="imgBox">
                   <!-- ✅ 수정: 상대경로 -> 정적 리소스 경로로 안전화 -->
-                  <img th:src="@{/img/test6-img.jpg}" alt="영화포스터">
+                  <img th:src="@{/img/test6-img.jpg}" alt="">
                 </figure>
                 <div class="infor">
                   <h5 class="in-title">영화제목</h5>

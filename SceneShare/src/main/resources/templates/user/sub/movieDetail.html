@@ -40,6 +40,7 @@
              th:style="|background-image: url('${bg}');|">
 
           <div class="text-area container">
+            <input type="hidden" name="title" th:value="|[추천] ${movie.movieTitle}|">
             <input type="hidden" id="movie-id" name="movieId" th:value="${movie.movieId}"/>
             <input type="hidden" name="movieTitle" th:value="${movie.movieTitle}"/>
             <input type="hidden" name="movieGenre" th:value="${genreText}"/>
@@ -59,6 +60,7 @@
             <input type="hidden" id="movieTime" name="movieTime" th:value="${timeText}"/>
             <input type="hidden" id="movieAge" name="movieAge" th:value="${movie.movieAge}"/>
             <input type="hidden" id="movieActors" name="movieActors" th:value="${movie.movieActors}"/>
+
 
             <h4 th:text="${movie.movieTitle}">제목</h4>
             <p>
@@ -93,6 +95,7 @@
                     <span th:text="${movie.ratingAvg != null ? movie.ratingAvg : (movie.movieRatingAvg != null ? movie.movieRatingAvg : 0)}">0</span>
                   </div>
                 </div>
+
                 <div class="btn-area">
                   <button type="button" class="bookmark">보고 싶어요</button>
                   <button type="button" class="btn-write" onclick="location.href='#popup_write';">영화추천 글쓰기</button>
@@ -171,8 +174,52 @@
   <div class="overlay_flight" id="popup_write" th:if="${movie != null}">
     <div class="pop_con">
       <form th:action="@{|/movieDetail/${movie.movieId}|}" method="post">
-        <div class="pop_header">
-          <h5 class="pop_title" th:text="${movie.movieTitle}"></h5>
+        <div class="pop_header mb-0">
+          <h4 class="pop_title ps-1 mb-2" th:text="${movie.movieTitle}"></h4>
+          <div class="rating">
+            <!-- ✅ [수정] 라디오에 실제 점수 value 부여 -->
+            <label class="rating__label rating__label--half" for="starhalf">
+              <input type="radio" id="starhalf" class="rating__input" name="rating" value="0.5">
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--full" for="star1">
+              <input type="radio" id="star1" class="rating__input" name="rating" value="1.0">
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--half" for="star1half">
+              <input type="radio" id="star1half" class="rating__input" name="rating" value="1.5">
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--full" for="star2">
+              <input type="radio" id="star2" class="rating__input" name="rating" value="2.0">
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--half" for="star2half">
+              <input type="radio" id="star2half" class="rating__input" name="rating" value="2.5">
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--full" for="star3">
+              <input type="radio" id="star3" class="rating__input" name="rating" value="3.0">
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--half" for="star3half">
+              <!-- ✅ [수정] checked 라디오에도 value 지정 -->
+              <input type="radio" id="star3half" class="rating__input" name="rating" value="3.5" checked>
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--full" for="star4">
+              <input type="radio" id="star4" class="rating__input" name="rating" value="4.0">
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--half" for="star4half">
+              <input type="radio" id="star4half" class="rating__input" name="rating" value="4.5">
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--full" for="star5">
+              <input type="radio" id="star5" class="rating__input" name="rating" value="5.0">
+              <span class="star-icon"></span>
+            </label>
+          </div>
           <button type="button" class="btn_close" onclick="location.href='#';"></button>
         </div>
 
