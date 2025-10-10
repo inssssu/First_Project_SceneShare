@@ -29,7 +29,7 @@ spring:
     defer-datasource-initialization: true
     show-sql: true
     hibernate:
-      ddl-auto: create #update (run ? data.sql ?? 1?? ?? ?? ??)
+      ddl-auto: update #update (run ? data.sql ?? 1?? ?? ?? ??)
     properties:
       hibernate:
         format_sql: true
