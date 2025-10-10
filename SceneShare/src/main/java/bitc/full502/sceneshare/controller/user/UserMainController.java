@@ -29,34 +29,38 @@ public class UserMainController {
    * ✅ /main 매핑은 이 메서드 '하나만' 존재해야 함
    */
   @GetMapping("/main")
-  public ModelAndView showMainPage() throws Exception {
+  public ModelAndView showMainPage() throws Exception {  // ✅ 메서드명도 명확하게
     ModelAndView mv = new ModelAndView("user/main");
 
-    // 1) 북마크 많은 영화
+    // 1) 기존 DB 데이터
     List<MovieInfoDTO> movieListBookmarkCnt = mainService.selectBoardListByBookmarkCnt();
     if (movieListBookmarkCnt.size() > 15) {
       movieListBookmarkCnt = movieListBookmarkCnt.subList(0, 15);
     }
-    if (movieListBookmarkCnt.isEmpty()) {                          // ✅ OMDb 폴백
-      var omdbList = omdbService.sampleMainList();                 // List<MainPageMovieVM>
-      mv.addObject("movieListBookmarkCnt", omdbList);              // 타입 달라도 OK (타임리프는 프로퍼티명으로 렌더링)
-    } else {
-      mv.addObject("movieListBookmarkCnt", movieListBookmarkCnt);
-    }
 
-    // 2) 최신 영화
     List<MovieInfoDTO> movieListReleaseDate = mainService.selectBoardListByReleaseDate();
     if (movieListReleaseDate.size() > 15) {
       movieListReleaseDate = movieListReleaseDate.subList(0, 15);
     }
-    if (movieListReleaseDate.isEmpty()) {                          // ✅ OMDb 폴백
-      var omdbList = omdbService.sampleMainList();
-      mv.addObject("movieListReleaseDate", omdbList);
+
+    // 2) OMDb 10개 (섹션별 키워드를 다르게 줄 수도 있음)
+    var omdbTop10Popular  = omdbService.getTenForMain("marvel"); // ✅ 가장 많이 찾는 영화(예시 키워드)
+    var omdbTop10Latest   = omdbService.getTenForMain("2023");   // ✅ 최신 영화(예시 키워드)
+
+    // 3) 주입 로직: DB가 비었으면 OMDb 10개로 대체 (원하면 항상 OMDb로 덮어써도 됨)
+    if (movieListBookmarkCnt == null || movieListBookmarkCnt.isEmpty()) {
+      mv.addObject("movieListBookmarkCnt", omdbTop10Popular);     // ✅
+    } else {
+      mv.addObject("movieListBookmarkCnt", movieListBookmarkCnt);
+    }
+
+    if (movieListReleaseDate == null || movieListReleaseDate.isEmpty()) {
+      mv.addObject("movieListReleaseDate", omdbTop10Latest);      // ✅
     } else {
       mv.addObject("movieListReleaseDate", movieListReleaseDate);
     }
 
-    // 3) 리뷰 목록
+    // 4) 리뷰 목록
     List<BoardEntity> boardList = mainService.selectBoardList();
     mv.addObject("boardList", boardList);
 

@@ -5,6 +5,7 @@ import java.util.List;
 public record OmdbMovie(
     String Title,
     String Year,
+    String Rated,
     String Released,
     String Runtime,
     String Genre,

@@ -20,38 +20,27 @@
   <!-- Swiper JS -->
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
-  <!-- Initialize Swiper -->
   <script>
-    // ✅ 수정: DOM이 준비된 뒤에 스와이퍼 초기화 (초기화 시점 문제 방지)
-    function getDirection() {
-      return window.innerWidth <= 760 ? 'vertical' : 'horizontal';
-    }
-
+    // ✅ 반응형 + 오버플로우 감지 + 부드러운 슬라이드
     document.addEventListener('DOMContentLoaded', function () {
-      const swiper1 = new Swiper('.listSwiper1', {
-        slidesPerView: 5,
+      const base = (next, prev) => ({
         spaceBetween: 16,
-        direction: getDirection(),
-        navigation: {
-          nextEl: '.list-btn-next1',
-          prevEl: '.list-btn-prev1',
-        }
+        speed: 500,
+        watchOverflow: true,           // ✅ 슬라이드 개수가 적으면 자동 비활성
+        navigation: { nextEl: next, prevEl: prev },
+        breakpoints: {                 // ✅ 반응형 slidesPerView
+          0:   { slidesPerView: 2 },
+          576: { slidesPerView: 3 },
+          768: { slidesPerView: 4 },
+          992: { slidesPerView: 5 }
+        },
+        keyboard: { enabled: true },
+        // 원하면 자동 슬라이드도:
+        // autoplay: { delay: 2500, disableOnInteraction: false },
       });
 
-      const swiper2 = new Swiper('.listSwiper2', {
-        slidesPerView: 5,
-        spaceBetween: 16,
-        direction: getDirection(),
-        navigation: {
-          nextEl: '.list-btn-next2',
-          prevEl: '.list-btn-prev2',
-        }
-      });
-
-      window.addEventListener('resize', () => {
-        swiper1.changeDirection(getDirection());
-        swiper2.changeDirection(getDirection());
-      });
+      const swiper1 = new Swiper('.listSwiper1', base('.list-btn-next1', '.list-btn-prev1')); // 가장 많이 찾는 영화
+      const swiper2 = new Swiper('.listSwiper2', base('.list-btn-next2', '.list-btn-prev2')); // 최신 영화
     });
   </script>
 </head>
