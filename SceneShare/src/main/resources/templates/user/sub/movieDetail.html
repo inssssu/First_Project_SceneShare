@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>spring project Scene, Share</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+          crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="/css/common.css">
+  <script src="/js/common.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const header = document.getElementById("header-scroll");
+
+      if (header && header.classList.contains("sub-header")) {
+        window.addEventListener("scroll", () => {
+          if (window.scrollY > 50) {
+            header.classList.add("scrolled");
+          } else {
+            header.classList.remove("scrolled");
+          }
+        });
+      }
+    });
+  </script>
+
+</head>
+<body>
+<div class="wrap sub-header" id="header-scroll">
+
+  <header th:replace="~{/user/layout/header :: headerBasic('영화정보 상세보기')}"></header>
+
+  <main>
+    <form id="frm" method="get">
+
+      <!-- 검색 결과가 없는 경우 -->
+      <div class="none h100" th:unless="${movie != null}">영화 정보를 불러올 수 없습니다.</div>
+
+      <div class="sub-top-visual">
+        <div class="inner" th:style="'background-image: url(' + ${movie.subTopImgUrl} + ');'">
+          <div class="text-area container">
+            <input type="hidden" id="movie-id" name="movieId" th:value="${movie.movieId}"/>
+            <input type="hidden" name="movieTitle" th:value="${movie.movieTitle}"/>
+            <input type="hidden" name="movieGenre" th:value="${movie.movieGenre}"/>
+            <input type="hidden" name="movieDirector" th:value="${movie.movieDirector}"/>
+            <input type="hidden" name="movieDescription" th:value="${movie.movieDescription}"/>
+            <input type="hidden" name="posterUrl" th:value="${movie.posterUrl}"/>
+            <input type="hidden" name="releaseDate" th:value="${movie.releaseDate}"/>
+            <input type="hidden" id="ratingAvg" name="ratingAvg" th:value="${movie.ratingAvg}"/>
+            <input type="hidden" id="movieCountry" name="movieCountry" th:value="${movie.movieCountry}"/>
+            <input type="hidden" id="movieTime" name="movieTime" th:value="${movie.movieTime}"/>
+            <input type="hidden" id="movieAge" name="movieAge" th:value="${movie.movieAge}"/>
+            <input type="hidden" id="movieActors" name="movieActors" th:value="${movie.movieActors}"/>
+
+
+            <h4 th:text="${movie.movieTitle}"></h4>
+            <p><span th:text="${#temporals.format(movie.releaseDate, 'yyyy')}"></span> &#183; <span
+                th:text="${movie.movieGenre}"></span> &#183;
+              <span th:text="${movie.movieCountry}">한국</span></p>
+            <p><span th:text="${movie.movieTime}">2시간 5분</span> &#183; <span th:text="${movie.movieAge}">전체</span></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        <section>
+
+          <div class="movie-infor">
+            <div class="imgBox">
+              <figure>
+                <img th:src="${#strings.isEmpty(movie.posterUrl)} ? '/img/no-image.png' : ${movie.posterUrl}" alt="영화 포스터">
+              </figure>
+            </div>
+            <div class="right">
+              <div class="right-top">
+                <div class="gpa">
+                  <p>평점</p>
+                  <div class="flex">
+                    <img src="/img/star_icon.svg" alt="star_icon">
+                    <span th:text="${movie.ratingAvg}">0</span>
+                  </div>
+                </div>
+                <div class="btn-area">
+                  <button type="button" class="bookmark">보고 싶어요</button>
+                  <button type="button" class="btn-write" onclick="location.href='#popup_write';">영화추천 글쓰기</button>
+                </div>
+              </div>
+
+              <div class="plot" th:text="${movie.movieDescription}">줄거리 없음</div>
+            </div>
+          </div>
+
+        </section>
+
+
+        <section>
+          <div class="sub-title">
+            <h4>출연/제작</h4>
+          </div>
+
+          <ul class="member-list" th:if="${movie.movieActors != null}">
+            <li><small>감독</small><span th:text="${movie.movieDirector}"></span></li>
+            <li th:each="actorString : ${#strings.arraySplit(movie.movieActors, ',')}">
+              <small th:text="${#strings.arraySplit(actorString, ':')[0].trim()}">주연</small>
+              <span th:text="${#strings.arraySplit(actorString, ':')[1].trim()}">배우명</span>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </form>
+
+
+    <div class="container page-bottom">
+      <section>
+        <div class="sub-title">
+          <h4>영화 추천 리뷰 <em class="main-color">0</em>
+          </h4>
+          <!--                    <a href="/main/boardList" th:href="@{/main/boardList}">더보기</a>-->
+        </div>
+
+        <!-- 리뷰한 영화/댓글이 없는 경우 -->
+        <div class="none">작성된 리뷰가 없습니다.</div>
+
+        <div class="review-sub-list">
+          <div class="review-sub-box" th:if="${#lists.size(boardList)} > 0" th:each="item : ${boardList}">
+            <a th:href="@{/user/boardDetail(boardId=${board.id})}">
+              <div class="top">
+                <h6>
+                  <img th:src="@{'/img/profile/' + ${item.userImg}}" class="profile-img"
+                       alt="profile">
+                  <span th:text="${item.userId}">userId</span>
+                </h6>
+                <div class="star-view">
+                  <img src="/img/star_icon.svg" alt="star">
+                  <span th:text="${item.rating}">0</span>
+                </div>
+              </div>
+              <div class="center">
+                <p class="in-text" th:text="${item.contents}"></p>
+              </div>
+              <div class="bottom">댓글 <em>7</em></div>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer th:replace="~{/user/layout/footer :: footer}"></footer>
+
+
+  <!-- 리뷰 글쓰기 팝업 -->
+  <div class="overlay_flight" id="popup_write">
+    <div class="pop_con">
+      <form action="/movieDetail/" th:action="@{|/movieDetail/${movie.movieId}|}" method="post">
+        <div class="pop_header">
+          <h5 class="pop_title" th:text="${movie.movieTitle}"></h5>
+          <button type="button" class="btn_close" onclick="location.href='#';"></button>
+        </div>
+
+
+        <div class="pop_input">
+          <div class="rating">
+            <label class="rating__label rating__label--half" for="starhalf">
+              <input type="radio" id="starhalf" class="rating__input" name="rating" value="">
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--full" for="star1">
+              <input type="radio" id="star1" class="rating__input" name="rating" value="">
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--half" for="star1half">
+              <input type="radio" id="star1half" class="rating__input" name="rating" value="">
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--full" for="star2">
+              <input type="radio" id="star2" class="rating__input" name="rating" value="">
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--half" for="star2half">
+              <input type="radio" id="star2half" class="rating__input" name="rating" value="">
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--full" for="star3">
+              <input type="radio" id="star3" class="rating__input" name="rating" value="">
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--half" for="star3half">
+              <input type="radio" id="star3half" class="rating__input" name="rating" checked>
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--full" for="star4">
+              <input type="radio" id="star4" class="rating__input" name="rating" value="">
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--half" for="star4half">
+              <input type="radio" id="star4half" class="rating__input" name="rating" value="">
+              <span class="star-icon"></span>
+            </label>
+            <label class="rating__label rating__label--full" for="star5">
+              <input type="radio" id="star5" class="rating__input" name="rating" value="">
+              <span class="star-icon"></span>
+            </label>
+          </div>
+
+          <textarea class="contents" name="contents" maxlength="10000"
+                    placeholder="이 작품에 대한 생각을 자유롭게 표현해주세요."></textarea>
+        </div>
+
+
+        <div class="pop_footer">
+          <div class="counter">
+            <span class="charCount">0</span> / 10000
+          </div>
+          <button type="submit" class="save">저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
