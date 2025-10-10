@@ -22,51 +22,44 @@
 
   <!-- Initialize Swiper -->
   <script>
-    // 중복된 getDirection 제거 + swiper 변수명 분리
+    // ✅ 수정: DOM이 준비된 뒤에 스와이퍼 초기화 (초기화 시점 문제 방지)
     function getDirection() {
       return window.innerWidth <= 760 ? 'vertical' : 'horizontal';
     }
 
-    var swiper1 = new Swiper('.listSwiper1', {
-      slidesPerView: 5,
-      spaceBetween: 16,
-      direction: getDirection(),
-      navigation: {
-        nextEl: '.list-btn-next1',
-        prevEl: '.list-btn-prev1',
-      },
-      on: {
-        resize: function () {
-          swiper1.changeDirection(getDirection());
-        },
-      },
+    document.addEventListener('DOMContentLoaded', function () {
+      const swiper1 = new Swiper('.listSwiper1', {
+        slidesPerView: 5,
+        spaceBetween: 16,
+        direction: getDirection(),
+        navigation: {
+          nextEl: '.list-btn-next1',
+          prevEl: '.list-btn-prev1',
+        }
+      });
+
+      const swiper2 = new Swiper('.listSwiper2', {
+        slidesPerView: 5,
+        spaceBetween: 16,
+        direction: getDirection(),
+        navigation: {
+          nextEl: '.list-btn-next2',
+          prevEl: '.list-btn-prev2',
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        swiper1.changeDirection(getDirection());
+        swiper2.changeDirection(getDirection());
+      });
     });
-
-    var swiper2 = new Swiper('.listSwiper2', {
-      slidesPerView: 5,
-      spaceBetween: 16,
-      direction: getDirection(),
-      navigation: {
-        nextEl: '.list-btn-next2',
-        prevEl: '.list-btn-prev2',
-      },
-      on: {
-        resize: function () {
-          swiper2.changeDirection(getDirection());
-        },
-      },
-    });
-
-
   </script>
-
-
 </head>
 <body>
 <div class="wrap">
 
-  <header th:replace="~{/user/layout/header :: headerBasic('main')}"></header>
-
+  <!-- ✅ 수정: 타임리프 프래그먼트 경로에서 선행 슬래시 제거 -->
+  <header th:replace="~{user/layout/header :: headerBasic('main')}"></header>
 
   <main>
     <div class="container">
@@ -85,11 +78,9 @@
               <div class="movie-box swiper-slide" th:if="${#lists.size(movieListBookmarkCnt)} > 0"
                    th:each="item, iter : ${movieListBookmarkCnt}">
                 <div class="movie-img">
-                  <a href="#" th:href="@{|/movieDetail/${item.movieId}|}">
-                    <figure>
-                      <figcaption th:text="${iter.index + 1}">1</figcaption>
-                      <img th:src="${#strings.isEmpty(item.moviePosterUrl)} ? '/img/no-image.svg' : ${item.moviePosterUrl}" alt="영화 포스터">
-                      <!-- <img th:src="@{/img/{file}(file=${item.moviePosterUrl})}" alt="영화 포스터">-->
+                  <a th:href="@{/movieDetail/{id}(id=${item.movieId})}">
+                    <figure th:with="posterUrl=${#strings.isEmpty(item.moviePosterUrl) ? '/img/no-image.svg' : item.moviePosterUrl}">
+                      <img src="/img/no-image.svg" th:src="@{${posterUrl}}" alt="영화 포스터">
                     </figure>
                   </a>
                   <button type="button" class="bookmark">
@@ -114,7 +105,6 @@
         </div>
       </section>
 
-
       <section class="main-sec2">
         <div class="title">
           <h4>최신 영화</h4>
@@ -124,15 +114,14 @@
         <!-- 데이터가 없는 경우 -->
         <div class="none main-page" th:unless="${#lists.size(movieListReleaseDate)} > 0">등록된 영화가 없습니다.</div>
 
-
         <div class="swiper-wrap">
           <div class="swiper listSwiper2">
             <div class="movie-list swiper-wrapper">
               <div class="movie-box swiper-slide" th:if="${#lists.size(movieListReleaseDate)} > 0" th:each="item : ${movieListReleaseDate}">
                 <div class="movie-img">
                   <a href="#" th:href="@{|/movieDetail/${item.movieId}|}">
-                    <figure>
-                      <img th:src="${item.moviePosterUrl}" alt="영화 포스터">
+                    <figure th:with="posterUrl=${#strings.isEmpty(item.moviePosterUrl) ? '/img/no-image.svg' : item.moviePosterUrl}">
+                      <img src="/img/no-image.svg" th:src="@{${posterUrl}}" alt="영화 포스터">
                     </figure>
                   </a>
                   <button type="button" class="bookmark">
@@ -158,7 +147,6 @@
 
       </section>
 
-
       <section class="main-sec3">
         <div class="title">
           <h4>개봉 예정작</h4>
@@ -170,7 +158,8 @@
             <div class="movie-img">
               <a href="#">
                 <figure>
-                  <img src="img/test6-img.jpg" alt="영화포스터">
+                  <!-- ✅ 수정: 상대경로 -> 정적 리소스 경로로 안전화 -->
+                  <img th:src="@{/img/test6-img.jpg}" alt="영화포스터">
                 </figure>
               </a>
               <button type="button" class="bookmark">
@@ -188,7 +177,8 @@
             <div class="movie-img">
               <a href="#">
                 <figure>
-                  <img src="img/test7-img.jpg" alt="영화포스터">
+                  <!-- ✅ 수정: 상대경로 -> 정적 리소스 경로로 안전화 -->
+                  <img th:src="@{/img/test7-img.jpg}" alt="영화포스터">
                 </figure>
               </a>
               <button type="button" class="bookmark">
@@ -204,7 +194,6 @@
 
         </div>
       </section>
-
 
       <section class="main-sec4 page-bottom">
         <div class="title">
@@ -224,16 +213,17 @@
                   <span th:text="${item.userId}">userId</span>
                 </h6>
                 <div class="star-view">
-                  <img src="/img/star_yellow_icon.svg">
-                  <img src="/img/star_yellow_icon.svg">
-                  <img src="/img/star_yellow_icon.svg">
-                  <img src="/img/star_half_icon.svg">
-                  <img src="/img/star_grey_icon.svg">
+                  <img src="/img/star_yellow_icon.svg" alt="">
+                  <img src="/img/star_yellow_icon.svg" alt="">
+                  <img src="/img/star_yellow_icon.svg" alt="">
+                  <img src="/img/star_half_icon.svg" alt="">
+                  <img src="/img/star_grey_icon.svg" alt="">
                 </div>
               </div>
               <div class="center">
                 <figure class="imgBox">
-                  <img src="img/test6-img.jpg" alt="영화포스터">
+                  <!-- ✅ 수정: 상대경로 -> 정적 리소스 경로로 안전화 -->
+                  <img th:src="@{/img/test6-img.jpg}" alt="영화포스터">
                 </figure>
                 <div class="infor">
                   <h5 class="in-title">영화제목</h5>
@@ -249,8 +239,8 @@
     </div>
   </main>
 
-
-  <footer th:replace="~{/user/layout/footer :: footer}"></footer>
+  <!-- ✅ 수정: 타임리프 프래그먼트 경로에서 선행 슬래시 제거 -->
+  <footer th:replace="~{user/layout/footer :: footer}"></footer>
 
 </div>
 </body>

@@ -1,6 +1,11 @@
 server:
   port: 8080
 
+omdb:
+  base-url: https://www.omdbapi.com
+  api-key: 1c73d218   # 로컬 테스트면 임시로 실제키를 써도 되고, 환경변수로 빼는 걸 권장
+
+
 spring:
   application:
     name: SceneShare
