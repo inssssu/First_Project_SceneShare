@@ -24,6 +24,9 @@ public class BoardEntity {
   @Column
   private String userId;
 
+  @Column(name = "user_img")
+  private String userImg;
+
   @Column
   private Integer movieId;
 

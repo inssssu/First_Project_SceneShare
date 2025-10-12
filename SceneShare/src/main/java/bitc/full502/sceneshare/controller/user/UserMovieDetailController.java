@@ -111,6 +111,7 @@ public class UserMovieDetailController {
     board.setTitle(title);
     board.setContents(contents);
     board.setRating(rating);
+    board.setMovieId(movieId);
     if (userId != null) board.setUserId(userId);
 
     boardService.boardWrite(board, movieId);

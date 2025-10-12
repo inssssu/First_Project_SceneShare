@@ -148,10 +148,11 @@
         <div class="review-sub-list">
           <!-- ✅ 수정: item 변수 사용 & 상세 링크의 변수 오타 수정 (board -> item) -->
           <div class="review-sub-box" th:if="${#lists.size(boardList)} > 0" th:each="item : ${boardList}">
-            <a th:href="@{/user/boardDetail(boardId=${item.id})}"><!-- 🔁 여기 board -> item -->
+            <a th:href="@{/user/boardDetail/{boardId}(boardId=${item.boardId})}"><!-- 🔁 여기 board -> item -->
               <div class="top">
                 <h6>
-                  <img th:src="@{'/img/profile/' + ${item.userImg}}" class="profile-img" alt="profile">
+                  <img th:if="${item.userImg != null}" th:src="@{'/img/profile/' + ${item.userImg}}" />
+                  <img th:unless="${item.userImg != null}" th:src="@{'/img/profile/default.png'}" />
                   <span th:text="${item.userId}">userId</span>
                 </h6>
                 <div class="star-view">

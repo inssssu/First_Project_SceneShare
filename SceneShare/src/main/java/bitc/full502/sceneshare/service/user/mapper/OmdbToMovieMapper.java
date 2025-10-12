@@ -22,7 +22,14 @@ public class OmdbToMovieMapper {
     e.setMovieCountry(OmdbMapUtils.cap255(m.Country()));
     e.setMovieDescription(OmdbMapUtils.cap255(m.Plot()));
     e.setMovieDirector(OmdbMapUtils.cap255(m.Director()));
-    e.setMovieGenre(OmdbMapUtils.cap255(m.Genre()));
+
+    // ✅ Genre: null 체크 + 소문자 변환 적용
+    String genre = OmdbMapUtils.cap255(m.Genre());
+    if (genre != null) {
+      genre = genre.toLowerCase(); // ✅ "Action, Drama" → "action, drama"
+    }
+    e.setMovieGenre(genre);
+
     e.setMovieTime(OmdbMapUtils.toMinutesString(m.Runtime()));
     e.setMovieTitle(OmdbMapUtils.cap255(m.Title()));
     e.setPosterUrl(poster);
