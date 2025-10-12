@@ -27,13 +27,21 @@ public class UserMovieDetailController {
   private final BoardService boardService;
   private final OmdbService omdbService;
 
+  /**
+   * 영화 상세보기
+   * - DB에 영화가 있으면 DB 값을 사용
+   * - 없으면 OMDb API로 보충하여 View DTO(MovieView)로 매핑
+   * - 항상 boardList(영화별 추천글 목록)를 함께 내려서 화면 하단에 보여준다
+   */
   @GetMapping("/movieDetail/{movieId}")
   public ModelAndView movieDetail(@PathVariable("movieId") int movieId) throws Exception {
     ModelAndView mv = new ModelAndView("user/sub/movieDetail");
 
-    Object[] board  = boardService.boardCnt();
-    Object[] rating = movieDetailService.ratingAvg();
+    // 상단 위젯용 집계
+    Object[] boardCnt  = boardService.boardCnt();
+    Object[] ratingCnt = movieDetailService.ratingAvg();
 
+    // 1) DB 조회
     var entity = movieDetailService.selectMovieDetail(movieId);
     MovieView view;
 
@@ -43,15 +51,17 @@ public class UserMovieDetailController {
         entity.setMovieActors("조연:정보 없음");
       }
       view = MovieViewMapper.fromEntity(entity);
-
-    } else {
-      // OMDb 폴백 -> View
+    }
+    else {
+      // 2) OMDb 폴백 -> View
       var omdb = omdbService.getByImdbId("tt" + movieId);
       if (omdb == null || !"True".equalsIgnoreCase(omdb.Response())) {
+        // IMDb ID의 0패딩 케이스 보정
         String padded = String.format("%07d", movieId);
         omdb = omdbService.getByImdbId("tt" + padded);
       }
       if (omdb == null || !"True".equalsIgnoreCase(omdb.Response())) {
+        // 실패 시 404 템플릿으로 이동
         mv.setViewName("error/404");
         mv.addObject("message", "영화 정보를 찾을 수 없습니다.");
         return mv;
@@ -62,9 +72,14 @@ public class UserMovieDetailController {
       }
     }
 
-    mv.addObject("movie", view); // ✅ 항상 MovieView로 렌더
-    mv.addObject("board", board);
-    mv.addObject("rating", rating);
+    // 화면 바인딩
+    mv.addObject("movie", view);                  // 항상 MovieView로 렌더
+    mv.addObject("board", boardCnt);
+    mv.addObject("rating", ratingCnt);
+
+    // ✅ 중요: 영화별 추천글 목록을 반드시 함께 내려보내기
+    mv.addObject("boardList", boardService.findByMovieId(movieId));
+
     return mv;
   }
 
@@ -72,6 +87,7 @@ public class UserMovieDetailController {
   @PostMapping("/movieDetail/{movieId}")
   public String boardWrite(
       @PathVariable("movieId") int movieId,
+      @RequestParam(required = false) Integer movieIdParam,
       @RequestParam(value = "title", required = false) String title,     // ✅ 필수 해제
       @RequestParam("rating") double rating,                             // ✅ 폼에서 value 채움
       @RequestParam("contents") String contents,

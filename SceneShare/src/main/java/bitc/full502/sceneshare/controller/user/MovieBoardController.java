@@ -16,11 +16,11 @@ public class MovieBoardController {
 
   private final BoardService boardService;
 
-  @PostMapping("/movieDetail/{movieId}")
+  @PostMapping("/movieDetail/{movieId}/board")
   public String writeBoard(@PathVariable Integer movieId,
                            @RequestParam String title,
                            @RequestParam String contents,
-                           @RequestParam Integer rating,
+                           @RequestParam Double rating,
                            HttpSession session) {
 
     String userId = (String) session.getAttribute("userId");

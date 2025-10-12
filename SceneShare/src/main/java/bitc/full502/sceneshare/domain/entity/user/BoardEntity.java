@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -32,10 +33,12 @@ public class BoardEntity {
   @Column
   private String contents;
 
-  @Column
-  private Integer rating;
+  @Column(name = "rating") // DECIMAL(2,1) 쓸 때
+  private Double rating;
 
-  @Column
+  // ✅ 추가: 생성일(저장 시점 자동 세팅)
+  @CreationTimestamp                // ★ Hibernate가 insert 시 자동으로 현재 시각 주입
+  @Column(name = "create_date", nullable = false)
   private LocalDateTime createDate;
 
   @Column

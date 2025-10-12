@@ -138,14 +138,17 @@
     <div class="container page-bottom">
       <section>
         <div class="sub-title">
-          <h4>영화 추천 리뷰 <em class="main-color">0</em></h4>
+          <!-- ✅ 수정: 하드코딩 0 -> boardList 크기 -->
+          <h4>영화 추천 리뷰 <em class="main-color" th:text="${#lists.size(boardList)}">0</em></h4>
         </div>
 
-        <div class="none">작성된 리뷰가 없습니다.</div>
+        <!-- ✅ 수정: boardList 없을 때만 '없습니다' 보이기 -->
+        <div class="none" th:unless="${#lists.size(boardList)} > 0">작성된 리뷰가 없습니다.</div>
 
         <div class="review-sub-list">
+          <!-- ✅ 수정: item 변수 사용 & 상세 링크의 변수 오타 수정 (board -> item) -->
           <div class="review-sub-box" th:if="${#lists.size(boardList)} > 0" th:each="item : ${boardList}">
-            <a th:href="@{/user/boardDetail(boardId=${board.id})}">
+            <a th:href="@{/user/boardDetail(boardId=${item.id})}"><!-- 🔁 여기 board -> item -->
               <div class="top">
                 <h6>
                   <img th:src="@{'/img/profile/' + ${item.userImg}}" class="profile-img" alt="profile">
@@ -159,7 +162,10 @@
               <div class="center">
                 <p class="in-text" th:text="${item.contents}"></p>
               </div>
-              <div class="bottom">댓글 <em>7</em></div>
+              <div class="bottom">
+                <span th:text="${#temporals.format(item.createDate, 'yyyy.MM.dd HH:mm')}">2025.10.10 19:30</span>
+                · 댓글 <em>0</em>
+              </div>
             </a>
           </div>
         </div>
@@ -176,6 +182,12 @@
       <form th:action="@{|/movieDetail/${movie.movieId}|}" method="post">
         <div class="pop_header mb-0">
           <h4 class="pop_title ps-1 mb-2" th:text="${movie.movieTitle}"></h4>
+
+          <!-- ✅ 추가: 서버가 title을 요구하는 경우 폼 안으로 이동/추가 -->
+          <input type="hidden" name="title" th:value="|[추천] ${movie.movieTitle}|"/>
+
+          <input type="hidden" name="movieId" th:value="${movie.movieId}"/>
+
           <div class="rating">
             <!-- ✅ [수정] 라디오에 실제 점수 value 부여 -->
             <label class="rating__label rating__label--half" for="starhalf">
@@ -225,7 +237,6 @@
 
         <div class="pop_input">
           <!-- 별점 UI 그대로 -->
-          <!-- ... 생략 ... -->
           <textarea class="contents" name="contents" maxlength="10000"
                     placeholder="이 작품에 대한 생각을 자유롭게 표현해주세요."></textarea>
         </div>

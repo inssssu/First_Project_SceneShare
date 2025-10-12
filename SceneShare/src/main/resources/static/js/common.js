@@ -125,19 +125,15 @@ $(() => {
 
     // 보고싶어요(좋아요)
     $(".bookmark").on('click', function () {
-      alert("좋아요 버튼 클릭!!" + "\n" + "/user/likePost/" + $("#movie-id").val());
 
       $.ajax({
         url: "/user/bookmarks/likePost/" + $("#movie-id").val(),
         type: "POST",
         success: function (data) {
-          alert(data);
-          console.log(data);
         },
         error: function (xhr, textStatus, errorThrown) {
           if (xhr.status == 401) {
             const msg = JSON.parse(xhr.responseText).msg;
-            alert(msg);
             location.href = "/login";
           }
           else {

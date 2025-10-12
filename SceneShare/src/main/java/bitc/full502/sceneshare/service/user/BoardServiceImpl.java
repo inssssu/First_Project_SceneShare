@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +35,7 @@ public class BoardServiceImpl implements BoardService {
 
   @Override
   public void write(Integer movieId, String userId,
-                    String title, String contents, Integer rating) {
+                    String title, String contents, Double rating) {
 
     BoardEntity board = new BoardEntity();
     board.setUserId(userId);
@@ -46,5 +47,10 @@ public class BoardServiceImpl implements BoardService {
     board.setUpdateDate(LocalDateTime.now());
 
     boardDetailRepository.save(board);
+  }
+
+  @Override
+  public List<BoardEntity> findByMovieId(int movieId) {
+    return boardDetailRepository.findByMovieIdOrderByCreateDateDesc(movieId);
   }
 }
