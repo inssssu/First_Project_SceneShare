@@ -37,31 +37,23 @@ public class UserMovieDetailController {
   public ModelAndView movieDetail(@PathVariable("movieId") int movieId) throws Exception {
     ModelAndView mv = new ModelAndView("user/sub/movieDetail");
 
-    // 상단 위젯용 집계
     Object[] boardCnt  = boardService.boardCnt();
     Object[] ratingCnt = movieDetailService.ratingAvg();
 
-    // 1) DB 조회
     var entity = movieDetailService.selectMovieDetail(movieId);
     MovieView view;
-
     if (entity != null) {
-      // DB -> View
       if (entity.getMovieActors() == null || entity.getMovieActors().isBlank()) {
         entity.setMovieActors("조연:정보 없음");
       }
       view = MovieViewMapper.fromEntity(entity);
-    }
-    else {
-      // 2) OMDb 폴백 -> View
+    } else {
       var omdb = omdbService.getByImdbId("tt" + movieId);
       if (omdb == null || !"True".equalsIgnoreCase(omdb.Response())) {
-        // IMDb ID의 0패딩 케이스 보정
         String padded = String.format("%07d", movieId);
         omdb = omdbService.getByImdbId("tt" + padded);
       }
       if (omdb == null || !"True".equalsIgnoreCase(omdb.Response())) {
-        // 실패 시 404 템플릿으로 이동
         mv.setViewName("error/404");
         mv.addObject("message", "영화 정보를 찾을 수 없습니다.");
         return mv;
@@ -72,16 +64,19 @@ public class UserMovieDetailController {
       }
     }
 
-    // 화면 바인딩
-    mv.addObject("movie", view);                  // 항상 MovieView로 렌더
+    mv.addObject("movie", view);
     mv.addObject("board", boardCnt);
     mv.addObject("rating", ratingCnt);
 
-    // ✅ 중요: 영화별 추천글 목록을 반드시 함께 내려보내기
-    mv.addObject("boardList", boardService.findByMovieId(movieId));
+    // ✅ 최신글 4개만
+    mv.addObject("boardList", boardService.findTop4ByMovie(movieId));
+
+    // ✅ 전체 개수
+    mv.addObject("boardTotal", boardService.countBoardsByMovie(movieId));
 
     return mv;
   }
+
 
   @PostMapping("/movieDetail/{movieId}")
   public String boardWrite(

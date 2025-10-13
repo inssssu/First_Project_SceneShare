@@ -140,27 +140,25 @@
     <div class="container page-bottom">
       <section>
         <div class="sub-title">
-          <h4>영화 추천 리뷰 <em class="main-color" th:text="${#lists.size(boardList)}">0</em></h4>
+          <h4>영화 추천 리뷰 <em class="main-color" th:text="${boardTotal}">0</em></h4>
         </div>
 
-        <!-- ✅ 수정: boardList 없을 때만 '없습니다' 보이기 -->
-        <div class="none" th:unless="${#lists.size(boardList)} > 0">작성된 리뷰가 없습니다.</div>
+        <!-- ★ 기존 카드 레이아웃 래퍼(.review-sub-list 등)를 유지하세요 -->
+        <div class="review-sub-list"
+             th:if="${boardList != null and !#lists.isEmpty(boardList)}">
 
-        <div class="review-sub-list">
-          <!-- ✅ 수정: item 변수 사용 & 상세 링크의 변수 오타 수정 (board -> item) -->
-          <div class="review-sub-box" th:if="${#lists.size(boardList)} > 0" th:each="item : ${boardList}">
+          <div class="review-sub-box" th:each="item : ${boardList}">
             <a th:href="@{/user/boardDetail/{boardId}(boardId=${item.boardId})}">
               <div class="top" style="display:flex;align-items:center;justify-content:space-between;">
                 <h6 style="display:flex;align-items:center;gap:8px;margin:0;line-height:1;font-size:14px;">
-                  <!-- 유저 이미지가 없으면 기본 아이콘으로 대체 -->
-                  <img
-                      th:src="${item.userImg} != null ? @{/img/profile/{f}(f=${item.userImg})} : @{/img/profile_img_bg.svg}"
-                      alt="avatar"
-                      style="width:20px;height:20px;border-radius:50%;object-fit:cover;flex:0 0 20px;display:block;"
-                  />
+                  <img th:if="${item.userImg != null}"
+                       th:src="@{'/img/profile/' + ${item.userImg}}"
+                       alt="avatar" style="width:40px;height:40px;border-radius:50%;object-fit:cover;display:block;">
+                  <img th:unless="${item.userImg != null}"
+                       th:src="@{/img/profile_img_bg.svg}"
+                       alt="avatar" style="width:40px;height:40px;border-radius:50%;object-fit:cover;display:block;">
                   <span th:text="${item.userId}">userId</span>
                 </h6>
-
                 <div class="star-view" style="display:flex;align-items:center;gap:4px;">
                   <img src="/img/star_icon.svg" alt="star" style="width:16px;height:16px;display:block;">
                   <span th:text="${item.rating}">0</span>
@@ -177,7 +175,11 @@
               </div>
             </a>
           </div>
+        </div>
 
+        <!-- 비어있을 때 -->
+        <div th:if="${boardList == null or #lists.isEmpty(boardList)}" style="color:#777;">
+          아직 등록된 리뷰가 없습니다.
         </div>
       </section>
     </div>

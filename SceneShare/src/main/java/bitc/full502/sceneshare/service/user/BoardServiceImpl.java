@@ -64,4 +64,14 @@ public class BoardServiceImpl implements BoardService {
   public List<BoardEntity> findByMovieId(int movieId) {
     return boardDetailRepository.findByMovieIdOrderByCreateDateDesc(movieId);
   }
+
+  @Override
+  public List<BoardEntity> findTop4ByMovie(int movieId) {
+    return boardDetailRepository.findTop4ByMovieIdOrderByCreateDateDesc(movieId);
+  }
+
+  @Override
+  public long countBoardsByMovie(int movieId) {
+    return boardDetailRepository.countByMovieId(movieId);
+  }
 }

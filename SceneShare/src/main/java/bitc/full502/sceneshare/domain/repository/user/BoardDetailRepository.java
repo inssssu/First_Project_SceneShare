@@ -15,4 +15,9 @@ public interface BoardDetailRepository extends JpaRepository<BoardEntity, Intege
 
   List<BoardEntity> findByMovieIdOrderByCreateDateDesc(Integer movieId);
 
+  // 최신 4개
+  List<BoardEntity> findTop4ByMovieIdOrderByCreateDateDesc(int movieId);
+
+  // ✅ 전체 개수
+  long countByMovieId(int movieId);
 }

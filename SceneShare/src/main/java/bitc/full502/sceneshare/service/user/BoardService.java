@@ -15,4 +15,8 @@ public interface BoardService {
   void write(Integer movieId, String userId, String title, String contents, Double rating, String genre);
 
   List<BoardEntity> findByMovieId(int movieId);
+
+  List<BoardEntity> findTop4ByMovie(int movieId);
+
+  long countBoardsByMovie(int movieId);
 }
