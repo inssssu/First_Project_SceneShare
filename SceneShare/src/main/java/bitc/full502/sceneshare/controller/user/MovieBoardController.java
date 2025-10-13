@@ -21,6 +21,7 @@ public class MovieBoardController {
                            @RequestParam String title,
                            @RequestParam String contents,
                            @RequestParam Double rating,
+                           @RequestParam String genre,
                            HttpSession session) {
 
     String userId = (String) session.getAttribute("userId");
@@ -28,7 +29,7 @@ public class MovieBoardController {
       return "redirect:/login";
     }
 
-    boardService.write(movieId, userId, title, contents, rating);
+    boardService.write(movieId, userId, title, contents, rating, genre);
 
     return "redirect:/movie/detail?movieId=" + movieId;
   }

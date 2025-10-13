@@ -83,30 +83,33 @@ public class UserMovieDetailController {
     return mv;
   }
 
-  // ✅ POST 핸들러 예시 (기존 주석되어 있던 메서드를 복원/수정)
   @PostMapping("/movieDetail/{movieId}")
   public String boardWrite(
       @PathVariable("movieId") int movieId,
       @RequestParam(required = false) Integer movieIdParam,
-      @RequestParam(value = "title", required = false) String title,     // ✅ 필수 해제
-      @RequestParam("rating") double rating,                             // ✅ 폼에서 value 채움
+      @RequestParam(value = "title", required = false) String title,
+      @RequestParam("rating") double rating,
       @RequestParam("contents") String contents,
       HttpServletRequest req
   ) throws Exception {
 
-    // (선택) 세션에서 사용자 정보
+    // 세션에서 사용자 정보 가져오기
     HttpSession session = req.getSession(false);
     String userId = (session != null) ? (String) session.getAttribute("userId") : null;
 
-    // ✅ title이 비어오면 서버에서 기본값 생성
+    // 영화 정보 가져오기 (타이틀 + 장르용)
+    var movie = movieDetailService.selectMovieDetail(movieId);
+
+
+    // title이 비어 있으면 기본값 설정
     if (title == null || title.isBlank()) {
-      // 영화 제목을 DB에서 가져오거나, 최소한 movieId만으로 기본값
-      var movie = movieDetailService.selectMovieDetail(movieId);
-      String movieTitle = (movie != null && movie.getMovieTitle() != null) ? movie.getMovieTitle() : ("#" + movieId);
+      String movieTitle = (movie != null && movie.getMovieTitle() != null)
+          ? movie.getMovieTitle()
+          : ("#" + movieId);
       title = "[추천] " + movieTitle;
     }
 
-    // ✅ 엔티티 구성 (필드명은 프로젝트의 BoardEntity에 맞춰 조정)
+    // ✅ 엔티티 구성
     BoardEntity board = new BoardEntity();
     board.setTitle(title);
     board.setContents(contents);
@@ -114,10 +117,23 @@ public class UserMovieDetailController {
     board.setMovieId(movieId);
     if (userId != null) board.setUserId(userId);
 
+    // ✅ genre 설정 추가
+    if (movie != null && movie.getMovieGenre() != null) {
+      board.setGenre(movie.getMovieGenre()); // 이미 .toLowerCase()로 저장돼 있다면 그대로
+    }
+
+    boardService.boardWrite(board, movieId);
+    System.out.println(">>> genre: " + board.getGenre()); // ✅ 로그로 확인
+
+    if (movie != null && movie.getMovieGenre() != null) {
+      board.setGenre(movie.getMovieGenre());
+    }
     boardService.boardWrite(board, movieId);
 
-    // ✅ 저장 후 상세로 리다이렉트
     return "redirect:/movieDetail/" + movieId;
+
   }
+
+
 
 }

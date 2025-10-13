@@ -47,7 +47,7 @@ public class BoardEntity {
   @Column
   private LocalDateTime updateDate;
 
-  @Column
+  @Column(name = "genre")
   private String genre;
 
   @Column

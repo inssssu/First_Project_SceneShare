@@ -12,7 +12,7 @@ public interface BoardService {
 
   Object[] boardCnt() throws Exception;
 
-  void write(Integer movieId, String userId, String title, String contents, Double rating);
+  void write(Integer movieId, String userId, String title, String contents, Double rating, String genre);
 
   List<BoardEntity> findByMovieId(int movieId);
 }

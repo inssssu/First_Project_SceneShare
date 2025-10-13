@@ -14,6 +14,8 @@
 
   <link rel="stylesheet" href="/css/common.css">
   <script src="/js/common.js"></script>
+
+
 </head>
 <body>
 <div class="wrap sub-header" id="header-scroll">
@@ -138,7 +140,6 @@
     <div class="container page-bottom">
       <section>
         <div class="sub-title">
-          <!-- ✅ 수정: 하드코딩 0 -> boardList 크기 -->
           <h4>영화 추천 리뷰 <em class="main-color" th:text="${#lists.size(boardList)}">0</em></h4>
         </div>
 
@@ -148,27 +149,35 @@
         <div class="review-sub-list">
           <!-- ✅ 수정: item 변수 사용 & 상세 링크의 변수 오타 수정 (board -> item) -->
           <div class="review-sub-box" th:if="${#lists.size(boardList)} > 0" th:each="item : ${boardList}">
-            <a th:href="@{/user/boardDetail/{boardId}(boardId=${item.boardId})}"><!-- 🔁 여기 board -> item -->
-              <div class="top">
-                <h6>
-                  <img th:if="${item.userImg != null}" th:src="@{'/img/profile/' + ${item.userImg}}" />
-                  <img th:unless="${item.userImg != null}" th:src="@{'/img/profile/default.png'}" />
+            <a th:href="@{/user/boardDetail/{boardId}(boardId=${item.boardId})}">
+              <div class="top" style="display:flex;align-items:center;justify-content:space-between;">
+                <h6 style="display:flex;align-items:center;gap:8px;margin:0;line-height:1;font-size:14px;">
+                  <!-- 유저 이미지가 없으면 기본 아이콘으로 대체 -->
+                  <img
+                      th:src="${item.userImg} != null ? @{/img/profile/{f}(f=${item.userImg})} : @{/img/profile_img_bg.svg}"
+                      alt="avatar"
+                      style="width:20px;height:20px;border-radius:50%;object-fit:cover;flex:0 0 20px;display:block;"
+                  />
                   <span th:text="${item.userId}">userId</span>
                 </h6>
-                <div class="star-view">
-                  <img src="/img/star_icon.svg" alt="star">
+
+                <div class="star-view" style="display:flex;align-items:center;gap:4px;">
+                  <img src="/img/star_icon.svg" alt="star" style="width:16px;height:16px;display:block;">
                   <span th:text="${item.rating}">0</span>
                 </div>
               </div>
+
               <div class="center">
                 <p class="in-text" th:text="${item.contents}"></p>
               </div>
+
               <div class="bottom">
                 <span th:text="${#temporals.format(item.createDate, 'yyyy.MM.dd HH:mm')}">2025.10.10 19:30</span>
                 · 댓글 <em>0</em>
               </div>
             </a>
           </div>
+
         </div>
       </section>
     </div>
