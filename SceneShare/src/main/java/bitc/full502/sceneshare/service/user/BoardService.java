@@ -1,5 +1,6 @@
 package bitc.full502.sceneshare.service.user;
 
+import bitc.full502.sceneshare.domain.entity.dto.LatestReviewCardView;
 import bitc.full502.sceneshare.domain.entity.user.BoardEntity;
 
 import java.util.List;
@@ -19,4 +20,6 @@ public interface BoardService {
   List<BoardEntity> findTop4ByMovie(int movieId);
 
   long countBoardsByMovie(int movieId);
+
+  List<LatestReviewCardView> getLatestReviewCards(int limit);
 }

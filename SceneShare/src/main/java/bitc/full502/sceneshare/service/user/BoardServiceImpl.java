@@ -1,8 +1,10 @@
 package bitc.full502.sceneshare.service.user;
 
+import bitc.full502.sceneshare.domain.entity.dto.LatestReviewCardView;
 import bitc.full502.sceneshare.domain.entity.user.BoardEntity;
 import bitc.full502.sceneshare.domain.repository.user.BoardDetailRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,5 +75,12 @@ public class BoardServiceImpl implements BoardService {
   @Override
   public long countBoardsByMovie(int movieId) {
     return boardDetailRepository.countByMovieId(movieId);
+  }
+
+  @Override
+  public List<LatestReviewCardView> getLatestReviewCards(int limit) {
+    return boardDetailRepository.findLatestCards(PageRequest.of(0, limit));
+    // 정렬을 메서드에서 주고 싶으면:
+    // return boardDetailRepository.findLatestCards(PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createDate")));
   }
 }

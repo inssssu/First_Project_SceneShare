@@ -3,6 +3,7 @@ package bitc.full502.sceneshare.controller.user;
 import bitc.full502.sceneshare.domain.entity.dto.MovieInfoDTO;
 import bitc.full502.sceneshare.domain.entity.user.BoardEntity;
 import bitc.full502.sceneshare.service.OmdbService;
+import bitc.full502.sceneshare.service.user.BoardService;
 import bitc.full502.sceneshare.service.user.MainService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -22,6 +23,7 @@ public class UserMainController {
 
   private final MainService mainService;
   private final OmdbService omdbService;
+  private final BoardService boardService;
 
   /**
    * ✅ 메서드명 변경: mainPage → showMainPage (main 이름 혼동 방지)
@@ -62,7 +64,9 @@ public class UserMainController {
 
     // 4) 리뷰 목록
     List<BoardEntity> boardList = mainService.selectBoardList();
-    mv.addObject("boardList", boardList);
+//    mv.addObject("boardList", boardList);
+
+    mv.addObject("boardList", boardService.getLatestReviewCards(3)); // 최신 3개
 
     return mv;
   }

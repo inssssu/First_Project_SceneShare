@@ -187,44 +187,70 @@
       <section class="main-sec4 page-bottom">
         <div class="title">
           <h4>영화 추천 리뷰</h4>
-          <a href="/main/boardList" th:href="@{/main/boardList}">더보기</a>
+          <a th:href="@{/main/boardList}">더보기</a>
         </div>
 
         <!-- 리뷰가 없는 경우 -->
-        <div class="none" th:unless="${#lists.size(boardList)} > 0">작성된 리뷰가 없습니다.</div>
+        <div class="none"
+             th:unless="${boardList != null and !#lists.isEmpty(boardList)}">
+          작성된 리뷰가 없습니다.
+        </div>
 
-        <div class="review-list hidden">
-          <div class="review-box" th:if="${#lists.size(boardList)} > 0" th:each="item : ${boardList}">
-            <a href="#">
+        <!-- 카드 리스트 (UI 클래스 유지) -->
+        <div class="review-list"
+             th:if="${boardList != null and !#lists.isEmpty(boardList)}">
+
+          <div class="review-box"
+               th:each="item : ${boardList}"
+               th:with="
+            poster=${#strings.isEmpty(item.posterUrl) ? '/img/no-image.png' : item.posterUrl},
+            full=${T(java.lang.Math).floor(item.rating)},
+            half=${(item.rating - T(java.lang.Math).floor(item.rating)) >= 0.5 ? 1 : 0}
+         ">
+            <a th:href="@{/user/boardDetail/{boardId}(boardId=${item.boardId})}">
               <div class="top">
                 <h6>
-                  <img src="/img/test-profile-img.jpg" class="profile-img" alt="profile">
+                  <!-- 유저 이미지(없으면 기본) -->
+                  <img th:if="${item.userImg != null}"
+                       th:src="@{'/img/profile/' + ${item.userImg}}"
+                       class="profile-img" alt="profile">
+                  <img th:unless="${item.userImg != null}"
+                       th:src="@{/img/profile_img_bg.svg}"
+                       class="profile-img" alt="profile">
+
                   <span th:text="${item.userId}">userId</span>
                 </h6>
+
+                <!-- 별점: full / half / grey -->
                 <div class="star-view">
-                  <img src="/img/star_yellow_icon.svg" alt="">
-                  <img src="/img/star_yellow_icon.svg" alt="">
-                  <img src="/img/star_yellow_icon.svg" alt="">
-                  <img src="/img/star_half_icon.svg" alt="">
-                  <img src="/img/star_grey_icon.svg" alt="">
+                  <img th:each="i : ${#numbers.sequence(1, full)}"
+                       src="/img/star_yellow_icon.svg" alt="">
+                  <img th:if="${half == 1}" src="/img/star_half_icon.svg" alt="">
+                  <img th:each="i : ${#numbers.sequence(1, 5 - full - half)}"
+                       src="/img/star_grey_icon.svg" alt="">
                 </div>
               </div>
+
               <div class="center">
                 <figure class="imgBox">
-                  <!-- ✅ 수정: 상대경로 -> 정적 리소스 경로로 안전화 -->
-                  <img th:src="@{/img/test6-img.jpg}" alt="">
+                  <img th:src="${poster}" alt="">
                 </figure>
                 <div class="infor">
-                  <h5 class="in-title">영화제목</h5>
+                  <h5 class="in-title" th:text="${item.movieTitle}">영화제목</h5>
                   <p class="in-text" th:text="${item.contents}"></p>
                 </div>
               </div>
-              <div class="bottom">댓글 <em>7</em></div>
+
+              <div class="bottom">
+                댓글 <em th:text="${item.commentCount}">0</em>
+                ·
+                <span th:text="${#temporals.format(item.createDate, 'yyyy.MM.dd HH:mm')}">2025.10.10 19:30</span>
+              </div>
             </a>
           </div>
-
         </div>
       </section>
+
     </div>
   </main>
 

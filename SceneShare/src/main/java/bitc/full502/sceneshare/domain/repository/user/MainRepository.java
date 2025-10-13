@@ -1,11 +1,13 @@
 package bitc.full502.sceneshare.domain.repository.user;
 
+import bitc.full502.sceneshare.domain.entity.dto.LatestReviewCardView;
 import bitc.full502.sceneshare.domain.entity.dto.MovieInfoDTO;
 import bitc.full502.sceneshare.domain.entity.user.BoardEntity;
 import bitc.full502.sceneshare.domain.entity.user.MovieEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.awt.print.Pageable;
 import java.util.List;
 
 public interface MainRepository extends JpaRepository<MovieEntity, Integer> {
@@ -39,4 +41,6 @@ public interface MainRepository extends JpaRepository<MovieEntity, Integer> {
     order by m.releaseDate desc
 """)
   List<MovieInfoDTO> findAllByReleaseDateDesc();
+
+
 }
