@@ -137,7 +137,7 @@
       </div>
     </form>
 
-    <div class="container page-bottom">
+    <div class="container page-bottom" id="reviews">
       <section>
         <div class="sub-title">
           <h4>영화 추천 리뷰 <em class="main-color" th:text="${boardTotal}">0</em></h4>
@@ -153,10 +153,10 @@
                 <h6 style="display:flex;align-items:center;gap:8px;margin:0;line-height:1;font-size:14px;">
                   <img th:if="${item.userImg != null}"
                        th:src="@{'/img/profile/' + ${item.userImg}}"
-                       alt="avatar" style="width:40px;height:40px;border-radius:50%;object-fit:cover;display:block;">
+                       alt="avatar" style="width:20px;height:20px;border-radius:50%;object-fit:cover;display:block;">
                   <img th:unless="${item.userImg != null}"
                        th:src="@{/img/profile_img_bg.svg}"
-                       alt="avatar" style="width:40px;height:40px;border-radius:50%;object-fit:cover;display:block;">
+                       alt="avatar" style="width:20px;height:20px;border-radius:50%;object-fit:cover;display:block;">
                   <span th:text="${item.userId}">userId</span>
                 </h6>
                 <div class="star-view" style="display:flex;align-items:center;gap:4px;">
@@ -191,7 +191,7 @@
   <!-- 리뷰 글쓰기 팝업 -->
   <div class="overlay_flight" id="popup_write" th:if="${movie != null}">
     <div class="pop_con">
-      <form th:action="@{|/movieDetail/${movie.movieId}|}" method="post">
+      <form id="reviewWriteForm" th:action="@{|/movieDetail/${movie.movieId}|}" method="post">
         <div class="pop_header mb-0">
           <h4 class="pop_title ps-1 mb-2" th:text="${movie.movieTitle}"></h4>
 
@@ -264,5 +264,49 @@
   </div>
 
 </div>
+
+<script>
+  (function bindSubmitLogger() {
+    function onReady() {
+      const form = document.getElementById('reviewWriteForm');
+      if (!form) {
+        console.warn('reviewWriteForm not found');
+        return;
+      }
+
+      // 바인딩 확인 로그
+      console.log('✅ submit logger bound to #reviewWriteForm');
+
+      form.addEventListener('submit', function (e) {
+        // ▼ 리다이렉트되며 콘솔이 지워지는 걸 막기 위해 잠시 전송 중단
+        // e.preventDefault();
+        //
+        // const fd = new FormData(form);
+        //
+        // console.group('📨 Review form submit payload');
+        // console.log('action:', form.action);
+        // console.log('method:', form.method.toUpperCase());
+        // // 전체를 한 번에 확인
+        // console.log('as object:', Object.fromEntries(fd.entries()));
+        // // 개별 필드 샘플
+        // console.log('title    =', fd.get('title'));
+        // console.log('movieId  =', fd.get('movieId'));
+        // console.log('rating   =', fd.get('rating'));   // 선택된 별점 (예: "3.5")
+        // console.log('contents =', fd.get('contents'));
+        // console.groupEnd();
+        //
+        // // ▼ 실제로 서버로 보내고 싶으면 주석 해제 (0.5초 뒤 전송)
+        // setTimeout(() => form.submit(), 500);
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', onReady);
+    } else {
+      onReady();
+    }
+  })();
+</script>
+
 </body>
 </html>

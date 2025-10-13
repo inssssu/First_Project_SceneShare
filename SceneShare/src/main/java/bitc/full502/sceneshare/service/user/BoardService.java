@@ -9,7 +9,7 @@ public interface BoardService {
 
   BoardEntity selectBoardDetail(int boardId) throws Exception;
 
-  void boardWrite(BoardEntity board, int movieId) throws Exception;
+  BoardEntity boardWrite(BoardEntity board, int movieId) throws Exception;
 
   Object[] boardCnt() throws Exception;
 
@@ -22,4 +22,6 @@ public interface BoardService {
   long countBoardsByMovie(int movieId);
 
   List<LatestReviewCardView> getLatestReviewCards(int limit);
+
+
 }

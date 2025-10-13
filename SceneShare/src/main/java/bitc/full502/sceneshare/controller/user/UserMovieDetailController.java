@@ -77,58 +77,40 @@ public class UserMovieDetailController {
     return mv;
   }
 
-
   @PostMapping("/movieDetail/{movieId}")
   public String boardWrite(
       @PathVariable("movieId") int movieId,
-      @RequestParam(required = false) Integer movieIdParam,
       @RequestParam(value = "title", required = false) String title,
       @RequestParam("rating") double rating,
       @RequestParam("contents") String contents,
       HttpServletRequest req
   ) throws Exception {
 
-    // 세션에서 사용자 정보 가져오기
     HttpSession session = req.getSession(false);
     String userId = (session != null) ? (String) session.getAttribute("userId") : null;
 
-    // 영화 정보 가져오기 (타이틀 + 장르용)
     var movie = movieDetailService.selectMovieDetail(movieId);
 
-
-    // title이 비어 있으면 기본값 설정
     if (title == null || title.isBlank()) {
-      String movieTitle = (movie != null && movie.getMovieTitle() != null)
-          ? movie.getMovieTitle()
-          : ("#" + movieId);
+      String movieTitle = (movie != null && movie.getMovieTitle() != null) ? movie.getMovieTitle() : ("#" + movieId);
       title = "[추천] " + movieTitle;
     }
 
-    // ✅ 엔티티 구성
     BoardEntity board = new BoardEntity();
     board.setTitle(title);
     board.setContents(contents);
     board.setRating(rating);
     board.setMovieId(movieId);
     if (userId != null) board.setUserId(userId);
-
-    // ✅ genre 설정 추가
-    if (movie != null && movie.getMovieGenre() != null) {
-      board.setGenre(movie.getMovieGenre()); // 이미 .toLowerCase()로 저장돼 있다면 그대로
-    }
-
-    boardService.boardWrite(board, movieId);
-    System.out.println(">>> genre: " + board.getGenre()); // ✅ 로그로 확인
-
     if (movie != null && movie.getMovieGenre() != null) {
       board.setGenre(movie.getMovieGenre());
     }
+
+    // ✅ 저장 (반환값은 필요 시 사용)
     boardService.boardWrite(board, movieId);
 
-    return "redirect:/movieDetail/" + movieId;
-
+    // ✅ 같은 페이지로 돌아가기 (리뷰 영역으로 스크롤하고 싶으면 #reviews)
+    return "redirect:/movieDetail/" + movieId + "#reviews";
   }
-
-
 
 }

@@ -26,7 +26,7 @@ public class BoardServiceImpl implements BoardService {
   }
 
   @Override
-  public void boardWrite(BoardEntity board, int movieId) throws Exception {
+  public BoardEntity boardWrite(BoardEntity board, int movieId) throws Exception {
 
     // 🎯 movie 정보 조회
     var movie = boardDetailRepository.findByBoardId(movieId); // 👈 movieDetailService로 바꿔도 됨
@@ -36,7 +36,9 @@ public class BoardServiceImpl implements BoardService {
       board.setGenre(movie.getGenre()); // 이미 소문자로 저장된 상태라면 그대로 OK
     }
 
-    boardDetailRepository.save(board);
+    board.setUpdateDate(java.time.LocalDateTime.now());
+
+    return boardDetailRepository.save(board);
   }
 
   @Override
