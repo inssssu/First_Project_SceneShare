@@ -19,6 +19,8 @@ public interface BoardService {
 
   List<BoardEntity> findTop4ByMovie(int movieId);
 
+  List<BoardEntity> findAllWithReplyCount();
+
   long countBoardsByMovie(int movieId);
 
   List<LatestReviewCardView> getLatestReviewCards(int limit);
@@ -26,4 +28,5 @@ public interface BoardService {
   void update(int boardId, String loginUserId, String contents, double rating);
 
   void delete(int boardId, String loginUserId);
+
 }

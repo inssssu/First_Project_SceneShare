@@ -147,8 +147,8 @@
         <li class="review" th:if="${#lists.size(boardList)} > 0" th:each="item : ${boardList}">
           <p class="cnt" th:text="${item.boardId}">0</p>
           <p class="n-title">
-            <a href="#" th:href="@{|/user/boardDetail/${item.boardId}|}" th:text="${item.contents}"></a>
-            <span>댓글 <b>4</b></span>
+            <a th:href="@{|/user/boardDetail/${item.boardId}|}" th:text="${item.contents}"></a>
+            <span>댓글 <b th:text="${item.replyCount != null ? item.replyCount : 0}">0</b></span>
           </p>
           <p class="user-id" th:text="${item.userId}">userId</p>
           <p class="date" th:text="${#temporals.format(item.createDate, 'yyyy-MM-dd')}"></p>

@@ -88,10 +88,9 @@ public class UserMainController {
   }
 
   @GetMapping("/main/boardList")
-  public ModelAndView boardList() throws Exception {
+  public ModelAndView boardList() {
     ModelAndView mv = new ModelAndView("/user/board/boardList");
-    List<BoardEntity> boardList = mainService.selectBoardList();
-    mv.addObject("boardList", boardList);
+    mv.addObject("boardList", boardService.findAllWithReplyCount());
     return mv;
   }
 

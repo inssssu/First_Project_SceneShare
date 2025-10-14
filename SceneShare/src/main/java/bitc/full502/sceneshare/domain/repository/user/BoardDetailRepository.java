@@ -40,4 +40,6 @@ public interface BoardDetailRepository extends JpaRepository<BoardEntity, Intege
       order by b.createDate desc
     """)
   List<LatestReviewCardView> findLatestCards(Pageable pageable);
+
+  List<BoardEntity> findAllByOrderByCreateDateDesc();
 }

@@ -79,6 +79,15 @@ public class BoardServiceImpl implements BoardService {
   }
 
   @Override
+  public List<BoardEntity> findAllWithReplyCount() {
+    List<BoardEntity> list = boardDetailRepository.findAllByOrderByCreateDateDesc();
+    list.forEach(b ->
+        b.setReplyCount(replyRepository.countByBoardId(b.getBoardId()))
+    );
+    return list;
+  }
+
+  @Override
   public long countBoardsByMovie(int movieId) {
     return boardDetailRepository.countByMovieId(movieId);
   }

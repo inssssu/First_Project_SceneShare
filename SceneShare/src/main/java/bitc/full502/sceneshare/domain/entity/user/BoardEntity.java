@@ -52,4 +52,7 @@ public class BoardEntity {
 
   @Column
   private String reply;
+
+  @Transient              // DB 컬럼 만들지 않음
+  private Long replyCount;
 }
