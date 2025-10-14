@@ -1258,6 +1258,12 @@ footer p {
     line-height: 1.4em;
 }
 
+.review-all,
+.re-text {
+    white-space: pre-wrap;   /* \n 을 줄바꿈으로, 연속 공백도 유지 */
+    word-break: break-word;  /* 긴 단어 줄바꿈 보조 */
+}
+
 .review-box.grey .bottom {
     border-top: 1px solid #e9e9e9;
     padding-top: 10px;

@@ -5,8 +5,10 @@ import bitc.full502.sceneshare.domain.entity.user.BoardEntity;
 import bitc.full502.sceneshare.domain.repository.user.BoardDetailRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -84,5 +86,39 @@ public class BoardServiceImpl implements BoardService {
     return boardDetailRepository.findLatestCards(PageRequest.of(0, limit));
     // 정렬을 메서드에서 주고 싶으면:
     // return boardDetailRepository.findLatestCards(PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createDate")));
+  }
+
+  @Override
+  public void update(int boardId, String loginUserId, String contents, double rating) {
+    validateContents(contents);
+    double norm = normalizeRating(rating);
+
+    BoardEntity b = boardDetailRepository.findById(boardId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+    // 작성자만 수정 가능
+    if (!loginUserId.equals(b.getUserId())) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
+    }
+
+    b.setContents(contents);
+    b.setRating(norm);                 // 0.0 ~ 5.0, 0.5 단위로 반올림
+    // JPA dirty checking으로 자동 flush (@PreUpdate 있으면 updateDate도 자동)
+  }
+
+  private void validateContents(String contents) {
+    if (contents == null || contents.isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "내용을 입력하세요.");
+    }
+    if (contents.length() > 10000) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "10000자 이내로 입력하세요.");
+    }
+  }
+
+  private double normalizeRating(double r) {
+    if (Double.isNaN(r)) return 0.0;
+    if (r < 0) r = 0;
+    if (r > 5) r = 5;
+    return Math.round(r * 2) / 2.0; // 0.5 단위로 반올림
   }
 }
