@@ -13,4 +13,6 @@ public interface ReplyRepository extends JpaRepository<ReplyEntity, Integer> {
 
   // 권한 검증용
   Optional<ReplyEntity> findByReplyIdAndUserId(int replyId, String userId);
+
+  void deleteByBoardId(int boardId);
 }

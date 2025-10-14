@@ -138,8 +138,10 @@
             <button type="button" class="btn-re-update"
                     th:attr="data-id=${r.replyId}" onclick="openReplyUpdate(this)">수정</button>
             <span></span>
-            <button type="button" class="btn-re-delete"
-                    th:attr="data-id=${r.replyId}" onclick="deleteReply(this)">삭제</button>
+            <button type="button" class="btn-delete"
+                    th:if="${loginId != null and loginId == board.userId}"
+                    th:attr="data-board-id=${board.boardId}"
+                    onclick="openBoardDelete(this)">삭제</button>
           </div>
         </div>
       </div>
@@ -218,11 +220,28 @@
         <p>리뷰를 삭제하시겠습니까?</p>
       </div>
       <div class="pop_btns">
+        <!-- 취소: 팝업 닫기 -->
         <button type="button" class="btn_cancel" onclick="location.href='#';">취소</button>
-        <button type="button" class="btn_delete" onclick="location.href='#';">확인</button>
+        <!-- 확인: 리뷰 삭제 호출 -->
+        <button type="button" class="btn_delete" onclick="deleteBoard()">확인</button>
       </div>
     </div>
   </div>
+
+  <!-- 리뷰 삭제 완료 팝업 -->
+  <div class="overlay_flight" id="popup_delete_done">
+    <div class="pop_con comfirm">
+      <div class="pop_message">
+        <h5>알림</h5>
+        <p>리뷰가 삭제되었습니다.</p>
+      </div>
+      <div class="pop_btns">
+        <!-- 확인: 목록 이동 -->
+        <button type="button" class="btn_delete" onclick="afterDeleteGoList()">확인</button>
+      </div>
+    </div>
+  </div>
+
 
   <!-- 팝업: 댓글 쓰기 -->
   <div class="overlay_flight" id="popup_re_write">
@@ -377,6 +396,63 @@
     }
   }
 
+  // ★ 팝업에서 실제로 지울 게시글 ID를 보관
+  let pendingDeleteBoardId = null;
+
+  // 삭제 팝업 열 때 호출 (버튼의 data-board-id를 우선 사용)
+  function openBoardDelete(btn) {
+    const idFromBtn = btn?.dataset?.boardId;
+    pendingDeleteBoardId = idFromBtn ? Number(idFromBtn) : getBoardId(); // getBoardId()는 기존 함수
+    location.hash = '#popup_delete';
+  }
+
+  // 확인 클릭 시 실제 삭제 호출
+  const BOARD_LIST_URL = '/main/boardList';  // 예) '/user/board/list' 라면 여기를 바꾸세요
+
+  // 삭제 확인 팝업에서 '확인' 클릭 시 호출되는 함수 (이미 작성한 부분)
+  async function deleteBoard() {
+    const id = (typeof pendingDeleteBoardId === 'number' && pendingDeleteBoardId)
+        ? pendingDeleteBoardId
+        : getBoardId();
+    if (!id) { alert('게시글 ID를 찾을 수 없습니다.'); return; }
+
+    const okBtn = document.querySelector('#popup_delete .btn_delete');
+    okBtn?.setAttribute('disabled', 'true'); // 중복 클릭 방지
+
+    try {
+      const res = await fetch(`/api/boards/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        credentials: 'same-origin'
+      });
+
+      if (res.status === 401) { alert('로그인이 필요합니다.'); return; }
+      if (res.status === 403) { alert('삭제 권한이 없습니다.'); return; }
+
+      // 존재하지 않는 글(404)도 UX상 성공으로 간주하여 목록으로 보내도 됨
+      if (res.ok || res.status === 404) {
+        pendingDeleteBoardId = null;
+        // 1) 현재 확인 팝업 닫기
+        location.hash = '#';
+        // 2) "삭제되었습니다" 팝업 열기 (동일 UI)
+        setTimeout(() => { location.hash = '#popup_delete_done'; }, 0);
+        return;
+      }
+
+      alert('리뷰 삭제에 실패했습니다.');
+    } catch (e) {
+      console.error(e);
+      alert('네트워크 오류가 발생했습니다.');
+    } finally {
+      okBtn?.removeAttribute('disabled');
+    }
+  }
+
+  // '삭제되었습니다' 팝업의 확인 버튼 클릭 시 호출
+  function afterDeleteGoList() {
+    location.hash = '#';             // 팝업 닫기
+    location.href = BOARD_LIST_URL;  // 목록으로 이동
+    // 목록 URL이 불명확하면: history.back();
+  }
 
   // ===== 댓글 팝업 열기/닫기 =====
   let editingReplyId = null;

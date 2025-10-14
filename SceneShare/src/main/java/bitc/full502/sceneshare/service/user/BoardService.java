@@ -24,4 +24,6 @@ public interface BoardService {
   List<LatestReviewCardView> getLatestReviewCards(int limit);
 
   void update(int boardId, String loginUserId, String contents, double rating);
+
+  void delete(int boardId, String loginUserId);
 }

@@ -33,4 +33,11 @@ public class BoardApiController {
     // 프런트는 바디를 쓰지 않으므로 200 OK만 반환
     return ResponseEntity.ok().build();
   }
+
+  @DeleteMapping("/{boardId}")
+  public ResponseEntity<Void> delete(@PathVariable int boardId, HttpSession session) {
+    String loginUserId = loginOr401(session);
+    boardService.delete(boardId, loginUserId);
+    return ResponseEntity.ok().build();
+  }
 }

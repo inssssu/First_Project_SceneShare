@@ -3,6 +3,7 @@ package bitc.full502.sceneshare.service.user;
 import bitc.full502.sceneshare.domain.entity.dto.LatestReviewCardView;
 import bitc.full502.sceneshare.domain.entity.user.BoardEntity;
 import bitc.full502.sceneshare.domain.repository.user.BoardDetailRepository;
+import bitc.full502.sceneshare.domain.repository.user.ReplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import java.util.List;
 public class BoardServiceImpl implements BoardService {
 
   private final BoardDetailRepository boardDetailRepository;
+  private final ReplyRepository replyRepository;
 
   @Override
   public BoardEntity selectBoardDetail(int boardId) throws Exception {
@@ -120,5 +122,17 @@ public class BoardServiceImpl implements BoardService {
     if (r < 0) r = 0;
     if (r > 5) r = 5;
     return Math.round(r * 2) / 2.0; // 0.5 단위로 반올림
+  }
+
+  @Override
+  @Transactional
+  public void delete(int boardId, String loginUserId) {
+    BoardEntity b = boardDetailRepository.findById(boardId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    if (!loginUserId.equals(b.getUserId())) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "삭제 권한이 없습니다.");
+    }
+    replyRepository.deleteByBoardId(boardId); // FK 상황에 맞게
+    boardDetailRepository.delete(b);
   }
 }
