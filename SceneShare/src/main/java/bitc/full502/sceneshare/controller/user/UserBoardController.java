@@ -7,7 +7,9 @@ import bitc.full502.sceneshare.service.OmdbService;
 import bitc.full502.sceneshare.service.user.BoardService;
 import bitc.full502.sceneshare.service.user.MovieDetailService;
 import bitc.full502.sceneshare.domain.repository.user.ReplyRepository; // ✅ 추가
+import bitc.full502.sceneshare.service.user.ReplyService;
 import bitc.full502.sceneshare.service.user.mapper.MovieViewMapper;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,10 +24,11 @@ public class UserBoardController {
   private final MovieDetailService movieDetailService; // ✅ 영화정보 조회
   private final OmdbService omdbService;               // ✅ 폴백
   private final ReplyRepository replyRepository;       // ✅ 댓글 수
+  private final ReplyService replyService;
 
   @GetMapping("/user/boardDetail/{boardId}")
-  public ModelAndView boardDetail(@PathVariable("boardId") int boardId) throws Exception {
-    ModelAndView mv = new ModelAndView("/user/board/boardDetail");
+  public ModelAndView boardDetail(@PathVariable("boardId") int boardId, HttpSession session) throws Exception {
+    ModelAndView mv = new ModelAndView("user/board/boardDetail");
 
     // 1) 게시글
     BoardEntity board = boardService.selectBoardDetail(boardId);
@@ -67,6 +70,13 @@ public class UserBoardController {
     mv.addObject("board", board);
     mv.addObject("movie", movieView);   // ✅ 템플릿에서 사용
     mv.addObject("replyCount", replyCount);
+
+    mv.addObject("replyCount", replyCount);
+    mv.addObject("replies", replyService.list(boardId, (String) session.getAttribute("userId")));
+
+    // 로그인 사용자 id (버튼 노출 제어용)
+    mv.addObject("loginUserId", (String) session.getAttribute("userId"));
+
 
     return mv;
   }

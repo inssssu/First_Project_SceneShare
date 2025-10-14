@@ -17,15 +17,17 @@ $(() => {
     const input = document.getElementById('search-movie');
     const clearBtn = document.getElementById('clearBtn');
 
-    input.addEventListener('input', () => {
-      clearBtn.style.display = input.value ? 'block' : 'none';
-    });
+    if (input && clearBtn) {
+      input.addEventListener('input', () => {
+        clearBtn.style.display = input.value ? 'block' : 'none';
+      });
 
-    clearBtn.addEventListener('click', () => {
-      input.value = '';
-      input.focus();
-      clearBtn.style.display = 'none';
-    });
+      clearBtn.addEventListener('click', () => {
+        input.value = '';
+        input.focus();
+        clearBtn.style.display = 'none';
+      });
+    }
 
 
     // textarea 글자수
@@ -33,8 +35,14 @@ $(() => {
       const textarea = group.querySelector('.contents');
       const charCount = group.querySelector('.charCount');
 
+      // 어떤 팝업은 textarea가 없고(#popup_re_delete), 어떤 팝업은 counter가 없음(#popup_re_update)
+      if (!textarea) return;
+
+      // 초기 표시
+      if (charCount) charCount.textContent = textarea.value.length;
+
       textarea.addEventListener('input', () => {
-        charCount.textContent = textarea.value.length;
+        if (charCount) charCount.textContent = textarea.value.length;
       });
     });
 
@@ -49,35 +57,38 @@ $(() => {
 
     let stars = document.querySelectorAll('.rating .star-icon');
 
-    checkedRate();
+    if (rateWrap.length) {
+      checkedRate();
 
-    rateWrap.forEach(wrap => {
-      wrap.addEventListener('mouseenter', () => {
-        stars = wrap.querySelectorAll('.star-icon');
+      rateWrap.forEach(wrap => {
+        wrap.addEventListener('mouseenter', () => {
+          stars = wrap.querySelectorAll('.star-icon');
 
-        stars.forEach((starIcon, idx) => {
-          starIcon.addEventListener('mouseenter', () => {
-            initStars();
-            filledRate(idx, labelLength);
+          stars.forEach((starIcon, idx) => {
+            starIcon.addEventListener('mouseenter', () => {
+              initStars();
+              filledRate(idx, labelLength);
 
-            for (let i = 0; i < stars.length; i++) {
-              if (stars[i].classList.contains('filled')) {
-                stars[i].style.opacity = opacityHover;
+              for (let i = 0; i < stars.length; i++) {
+                if (stars[i].classList.contains('filled')) {
+                  stars[i].style.opacity = opacityHover;
+                }
               }
-            }
-          });
+            });
 
-          starIcon.addEventListener('mouseleave', () => {
-            starIcon.style.opacity = '1';
-            checkedRate();
-          });
+            starIcon.addEventListener('mouseleave', () => {
+              starIcon.style.opacity = '1';
+              checkedRate();
+            });
 
-          wrap.addEventListener('mouseleave', () => {
-            starIcon.style.opacity = '1';
+            wrap.addEventListener('mouseleave', () => {
+              starIcon.style.opacity = '1';
+            });
           });
         });
       });
-    });
+    }
+
 
     function filledRate(index, length) {
       if (index <= length) {

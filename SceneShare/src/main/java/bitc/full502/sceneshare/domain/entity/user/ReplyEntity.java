@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -22,7 +23,7 @@ public class ReplyEntity {
   private int replyId;
 
   @Column(nullable = false)
-  private int userId;
+  private String userId;
 
   @Column(nullable = false)
   private int boardId;
@@ -31,6 +32,7 @@ public class ReplyEntity {
   private String contents;
 
   @Column
+  @CreationTimestamp
   private LocalDateTime createDate;
 
   @Column

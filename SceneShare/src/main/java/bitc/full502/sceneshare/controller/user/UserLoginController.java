@@ -79,6 +79,8 @@ public class UserLoginController {
     session.removeAttribute("userName");
     session.removeAttribute("userEmail");
 
+    session.setMaxInactiveInterval(60 * 60 * 3); // 3시간
+
     session.invalidate();
 
     return "/user/login/logout";

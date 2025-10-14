@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>spring project Scene, Share</title>
 
+
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -26,7 +28,8 @@
     <div class="container page-bottom">
 
       <form id="frm" method="post">
-        <div class="review-box grey">
+        <div class="review-box grey" id="board-detail-root"
+             th:attr="data-board-id=${board.boardId}, data-login=${loginUserId != null}">
           <!-- hidden 값 정리 -->
           <input type="hidden" name="boardId"    th:value="${board.boardId}">
           <input type="hidden" name="userId"     th:value="${board.userId}">
@@ -94,31 +97,44 @@
           <!-- 리뷰 본문 -->
           <p class="review-all" th:text="${board.contents}"></p>
 
-          <!-- 하단: 댓글 수 + 버튼 -->
-          <div class="bottom">
-            <p class="reply">댓글 <em th:text="${replyCount}">0</em></p>
+          <!-- 하단: 댓글 수 + 버튼 (게시글의 수정/삭제는 작성자만) -->
+          <div class="bottom"
+               th:with="loginId=${loginUserId}">
+            <p class="reply">댓글 <em id="reply-count" th:text="${replyCount}">0</em></p>
             <div class="btn-area">
-              <button type="button" class="btn-re-write" onclick="location.href='#popup_re_write';">댓글</button>
-              <button type="button" class="btn-update"  onclick="location.href='#popup_update';">수정</button>
-              <button type="button" class="btn-delete"  onclick="location.href='#popup_delete';">삭제</button>
+              <!-- 로그인 사용자는 댓글 버튼 노출 -->
+              <button type="button" class="btn-re-write"
+                      th:if="${loginId != null}"
+                      onclick="openReplyWrite()">댓글</button>
+
+              <!-- 게시글 작성자만 수정/삭제 -->
+              <button type="button" class="btn-update"
+                      th:if="${loginId != null and loginId == board.userId}"
+                      onclick="location.href='#popup_update';">수정</button>
+              <button type="button" class="btn-delete"
+                      th:if="${loginId != null and loginId == board.userId}"
+                      onclick="location.href='#popup_delete';">삭제</button>
             </div>
           </div>
         </div>
       </form>
 
-      <!-- (선택) 댓글 목록을 실제로 출력하고 싶다면 -->
-      <div class="reply-list" th:if="${replies != null}">
-        <div class="reply-box" th:each="r : ${replies}">
+      <!-- 댓글 목록 -->
+      <div class="reply-list" id="reply-list" th:if="${replies != null}">
+        <div class="reply-box" th:each="r : ${replies}"
+             th:with="mine=${loginUserId != null and (loginUserId == r.userId)}">
           <h6 class="re-user-id">
             <img src="/img/profile_img_bg.svg" class="profile-img" alt="프로필 이미지">
             <span th:text="${r.userId}">user</span>
-            <small class="re-date" th:text="${#temporals.format(r.createDate, 'yyyy-MM-dd')}"></small>
+            <small class="re-date" th:text="${#temporals.format(r.createDate, 'yyyy-MM-dd HH:mm')}"></small>
           </h6>
           <div class="re-text" th:text="${r.contents}"></div>
-          <div class="re-btn-area">
-            <button type="button" class="btn-re-update" onclick="location.href='#popup_re_update';">수정</button>
+          <div class="re-btn-area" th:if="${mine}">
+            <button type="button" class="btn-re-update"
+                    th:attr="data-id=${r.replyId}" onclick="openReplyUpdate(this)">수정</button>
             <span></span>
-            <button type="button" class="btn-re-delete" onclick="location.href='#popup_re_delete';">삭제</button>
+            <button type="button" class="btn-re-delete"
+                    th:attr="data-id=${r.replyId}" onclick="deleteReply(this)">삭제</button>
           </div>
         </div>
       </div>
@@ -204,49 +220,41 @@
   </div>
 
 
-  <!-- 댓글 쓰기 팝업 -->
+  <!-- 팝업: 댓글 쓰기 (질문에 준 코드 그대로) -->
   <div class="overlay_flight" id="popup_re_write">
     <div class="pop_con">
       <div class="pop_header">
         <h5 class="pop_title">댓글</h5>
-        <button type="button" class="btn_close" onclick="location.href='#';"></button>
+        <button type="button" class="btn_close" onclick="closeOverlays()"></button>
       </div>
       <div class="pop_input">
-        <div class="rating"></div>
-
-        <textarea class="contents" maxlength="10000" placeholder="이 작품에 대한 생각을 자유롭게 표현해주세요."></textarea>
+      <textarea id="reply-contents" class="contents" maxlength="1000"
+                placeholder="이 작품에 대한 생각을 자유롭게 표현해주세요."
+                oninput="updateCharCount(this)"></textarea>
       </div>
       <div class="pop_footer">
-        <div class="counter">
-          <span class="charCount">0</span> / 10000
-        </div>
-        <button type="submit" class="save">저장</button>
+        <div class="counter"><span class="charCount">0</span> / 1000</div>
+        <button type="button" class="save" onclick="createReply()">저장</button>
       </div>
     </div>
   </div>
 
-
-  <!-- 댓글 수정 팝업 -->
+  <!-- 팝업: 댓글 수정 -->
   <div class="overlay_flight" id="popup_re_update">
     <div class="pop_con">
       <div class="pop_header">
-        <h5 class="pop_title">댓글</h5>
-        <button type="button" class="btn_close" onclick="location.href='#';"></button>
+        <h5 class="pop_title">댓글 수정</h5>
+        <button type="button" class="btn_close" onclick="closeOverlays()"></button>
       </div>
       <div class="pop_input">
-        <div class="rating"></div>
-
-        <textarea class="contents" maxlength="10000" placeholder="이 작품에 대한 생각을 자유롭게 표현해주세요."></textarea>
+        <textarea id="reply-contents-edit" class="contents" maxlength="1000"></textarea>
       </div>
       <div class="pop_footer">
-        <div class="counter">
-          <span class="charCount">0</span> / 10000
-        </div>
-        <button type="submit" class="save">수정</button>
+        <div class="counter"><span class="charCount">0</span> / 1000</div>
+        <button type="button" class="save" onclick="updateReply()">수정</button>
       </div>
     </div>
   </div>
-
 
   <!-- 댓글 삭제 팝업 -->
   <div class="overlay_flight" id="popup_re_delete">
@@ -266,5 +274,193 @@
   <footer th:replace="~{/user/layout/footer :: footer}"></footer>
 
 </div>
+
+<script th:inline="javascript">
+  // ====== 공통 상태 ======
+  const ROOT = document.getElementById('board-detail-root');
+  const boardId = ROOT ? Number(ROOT.dataset.boardId) : /*[[${board.boardId}]]*/ 0; // ← data-* 우선
+  const loginId = /*[[${loginUserId}]]*/ null;
+  let editingReplyId = null;
+
+  // ====== 팝업 열기/닫기 ======
+  function openReplyWrite() {
+    location.hash = '#popup_re_write';
+    const ta = document.getElementById('reply-contents');
+    if (ta) {
+      ta.value = '';
+      updateCharCount(ta);
+      setTimeout(() => ta.focus(), 0);
+    }
+  }
+  function openReplyUpdate(btn) {
+    editingReplyId = btn.dataset.id;
+    const box = btn.closest('.reply-box');
+    const text = box.querySelector('.re-text')?.textContent?.trim() ?? '';
+    const ta = document.getElementById('reply-contents-edit');
+    if (ta) {
+      ta.value = text;
+      setTimeout(() => ta.focus(), 0);
+    }
+    location.hash = '#popup_re_update';
+  }
+  function closeOverlays() { location.hash = '#'; }
+
+  // ====== 렌더링 & 유틸 ======
+  function escapeHtml(s){ return (s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  function nl2br(s){ return (s ?? '').replace(/\n/g, '<br>'); }
+  function updateCharCount(el){
+    const span = document.querySelector('#popup_re_write .counter .charCount');
+    if (span) span.textContent = String(el.value.length);
+  }
+
+  function renderReplies(items) {
+    const wrap = document.getElementById('reply-list');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    items.forEach(it => {
+      const mine = it.mine === true || (loginId && String(it.userId) === String(loginId));
+      const html = `
+        <div class="reply-box">
+          <h6 class="re-user-id">
+            <img src="/img/profile_img_bg.svg" class="profile-img" alt="프로필 이미지">
+            <span>${escapeHtml(it.userId ?? 'user')}</span>
+            <small class="re-date">${escapeHtml(formatYmdHm(it.createDate))}</small>
+          </h6>
+          <div class="re-text">${nl2br(escapeHtml(it.contents || ''))}</div>
+          ${mine ? `
+            <div class="re-btn-area">
+              <button type="button" class="btn-re-update" data-id="${it.replyId}" onclick="openReplyUpdate(this)">수정</button>
+              <span></span>
+              <button type="button" class="btn-re-delete" data-id="${it.replyId}" onclick="deleteReply(this)">삭제</button>
+            </div>
+          ` : ``}
+        </div>`;
+      wrap.insertAdjacentHTML('beforeend', html);
+    });
+  }
+
+  function setReplyCount(n){
+    const el = document.getElementById('reply-count');
+    if (el) el.textContent = String(n ?? 0);
+  }
+
+  // ====== 목록 새로고침 ======
+  async function refreshReplies() {
+    try {
+      const res = await fetch(`/api/replies?boardId=${encodeURIComponent(boardId)}`, { credentials: 'same-origin' });
+      if (!res.ok) return;
+      const data = await res.json();
+
+      // 서버 응답이 {count, items} 이거나 단순 배열 둘 다 지원
+      let items = Array.isArray(data) ? data : (data.items ?? []);
+      let count = Array.isArray(data) ? items.length : (data.count ?? items.length);
+
+      setReplyCount(count);
+      renderReplies(items);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  // ====== 생성 ======
+  async function createReply() {
+    const ta = document.getElementById('reply-contents');
+    const contents = (ta?.value ?? '').trim();
+    if (!contents) { alert('내용을 입력하세요.'); ta?.focus(); return; }
+    try {
+      const body = new URLSearchParams({ boardId: String(boardId), contents });
+      const res = await fetch('/api/replies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        credentials: 'same-origin',
+        body
+      });
+      if (res.status === 401) { alert('로그인 후 이용해 주세요.'); return; }
+      if (!res.ok) { alert('등록에 실패했습니다.'); return; }
+
+      closeOverlays();
+      await refreshReplies();
+    } catch (e) {
+      console.error(e);
+      alert('네트워크 오류가 발생했습니다.');
+    }
+  }
+
+  // ====== 수정 ======
+  async function updateReply() {
+    const ta = document.getElementById('reply-contents-edit');
+    const contents = (ta?.value ?? '').trim();
+    if (!contents) { alert('내용을 입력하세요.'); ta?.focus(); return; }
+    try {
+      const res = await fetch(`/api/replies/${editingReplyId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        credentials: 'same-origin',
+        body: new URLSearchParams({ contents })
+      });
+      if (res.status === 401) { alert('로그인 후 이용해 주세요.'); return; }
+      if (res.status === 403) { alert('수정 권한이 없습니다.'); return; }
+      if (!res.ok) { alert('수정에 실패했습니다.'); return; }
+
+      closeOverlays();
+      await refreshReplies();
+    } catch (e) {
+      console.error(e);
+      alert('네트워크 오류가 발생했습니다.');
+    }
+  }
+
+  // ====== 삭제 ======
+  async function deleteReply(btn) {
+    if (!confirm('댓글을 삭제할까요?')) return;
+    const id = btn.dataset.id;
+    try {
+      const res = await fetch(`/api/replies/${id}`, {
+        method: 'DELETE',
+        credentials: 'same-origin'
+      });
+      if (res.status === 401) { alert('로그인 후 이용해 주세요.'); return; }
+      if (res.status === 403) { alert('삭제 권한이 없습니다.'); return; }
+      if (!res.ok) { alert('삭제에 실패했습니다.'); return; }
+      await refreshReplies();
+    } catch (e) {
+      console.error(e);
+      alert('네트워크 오류가 발생했습니다.');
+    }
+  }
+
+  // ====== 초기 바인딩 ======
+  document.addEventListener('DOMContentLoaded', () => {
+    refreshReplies();
+
+    const ta = document.getElementById('reply-contents');
+    if (ta) {
+      ta.addEventListener('input', () => updateCharCount(ta));
+      ta.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+          e.preventDefault();
+          createReply();
+        }
+      });
+    }
+    const tae = document.getElementById('reply-contents-edit');
+    if (tae) {
+      tae.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+          e.preventDefault();
+          updateReply();
+        }
+      });
+    }
+  });
+
+  function formatYmdHm(x) {
+    if (!x) return '';
+    // 예: "2025-10-14T10:59:07.844149" 또는 "2025-10-14 10:59:07.844149"
+    const s = String(x).replace('T', ' ');
+    return s.slice(0, 16); // "yyyy-MM-dd HH:mm"
+  }
+</script>
+
 </body>
 </html>
