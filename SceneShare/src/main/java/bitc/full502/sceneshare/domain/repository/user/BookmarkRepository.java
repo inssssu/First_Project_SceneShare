@@ -1,4 +1,4 @@
-package bitc.full502.sceneshare.domain.repository;
+package bitc.full502.sceneshare.domain.repository.user;
 
 import bitc.full502.sceneshare.domain.entity.user.BookmarkEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

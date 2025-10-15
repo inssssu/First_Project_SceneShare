@@ -3,7 +3,7 @@ package bitc.full502.sceneshare.service.user;
 import bitc.full502.sceneshare.domain.entity.user.BookmarkEntity;
 import bitc.full502.sceneshare.domain.entity.user.MovieEntity;
 import bitc.full502.sceneshare.domain.entity.user.UserEntity;
-import bitc.full502.sceneshare.domain.repository.BookmarkRepository;
+import bitc.full502.sceneshare.domain.repository.user.BookmarkRepository;
 import bitc.full502.sceneshare.domain.repository.user.MovieDetailRepository;
 import bitc.full502.sceneshare.domain.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
