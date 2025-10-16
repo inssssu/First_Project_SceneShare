@@ -8,4 +8,4 @@ Spring Boot 를 이용한 영화 추천 사이트 입니다.
  - 기능 : 평점 기능과 게시글 작성, 댓글 기능을 통해 사용자간 정보 공유
 
 ## 기술스택
- - Java 17, Spring Boot 3.5.5, MySQL8, HikariCP, Thymeleaf, Bootstrap
+ - Java 17, Spring Boot 3.5.6, MySQL8, HikariCP, Thymeleaf, Bootstrap
