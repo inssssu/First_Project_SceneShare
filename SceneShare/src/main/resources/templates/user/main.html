@@ -203,7 +203,7 @@
           <div class="review-box"
                th:each="item : ${boardList}"
                th:with="
-            poster=${#strings.isEmpty(item.posterUrl) ? '/img/no-image.png' : item.posterUrl},
+            poster=${#strings.isEmpty(item.posterUrl) ? '/img/no-image.svg' : item.posterUrl},
             full=${T(java.lang.Math).floor(item.rating)},
             half=${(item.rating - T(java.lang.Math).floor(item.rating)) >= 0.5 ? 1 : 0}
          ">
@@ -236,7 +236,7 @@
                   <img th:src="${poster}" alt="">
                 </figure>
                 <div class="infor">
-                  <h5 class="in-title" th:text="${item.movieTitle}">영화제목</h5>
+<!--                  <h5 class="in-title" th:text="${item.movieTitle}">영화제목</h5>-->
                   <p class="in-text" th:text="${item.contents}"></p>
                 </div>
               </div>
